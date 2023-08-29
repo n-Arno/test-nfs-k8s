@@ -1,0 +1,50 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv<num>
+  labels:
+    app: nfs-data<num>
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: "10.32.100.<num>" # use fixed cluster ip because host can't resolve service name
+    path: "/pvc"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+    matchLabels:
+      app: nfs-data<num>
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nfs-pod-pvc
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    command:
+    - /bin/sh
+    - -c
+    - "tail -f /dev/null"
+    volumeMounts:
+    - name: data
+      mountPath: /demo/data
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: nfs-pvc
