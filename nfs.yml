@@ -29,13 +29,13 @@ spec:
         command:
         - /bin/sh
         - -c
-        - "mkdir -p /exports/pvc"
+        - "mkdir -p /exports/pvc && chown -R 1000:1000 /exports/pvc"
         volumeMounts:
         - name: storage
           mountPath: /exports
       containers:
       - name: nfs-server
-        image: k8s.gcr.io/volume-nfs:0.8
+        image: ghcr.io/n-arno/volume-nfs:updated
         ports:
         - name: nfs
           containerPort: 2049
